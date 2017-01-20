@@ -1,4 +1,4 @@
-.PHONY: up vagrant playbook clean
+.PHONY: up vagrant playbook test clean
 
 up: vagrant playbook
 
