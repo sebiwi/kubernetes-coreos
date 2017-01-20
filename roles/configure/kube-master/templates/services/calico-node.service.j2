@@ -1,0 +1,28 @@
+# {{ ansible_managed }}
+[Unit]
+Description=Calico per-host agent
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Slice=machine.slice
+Environment=CALICO_DISABLE_FILE_LOGGING=true
+Environment=HOSTNAME={{ ansible_env.COREOS_PUBLIC_IPV4 }}
+Environment=IP={{ ansible_env.COREOS_PUBLIC_IPV4 }}
+Environment=FELIX_FELIXHOSTNAME={{ ansible_env.COREOS_PUBLIC_IPV4 }}
+Environment=CALICO_NETWORKING=false
+Environment=NO_DEFAULT_POOLS=true
+Environment=ETCD_ENDPOINTS={{ etcd_endpoints }}
+ExecStart=/usr/bin/rkt run --inherit-env --stage1-from-dir=stage1-fly.aci \
+--volume=modules,kind=host,source=/lib/modules,readOnly=false \
+--mount=volume=modules,target=/lib/modules \
+--volume=dns,kind=host,source=/etc/resolv.conf,readOnly=true \
+--mount=volume=dns,target=/etc/resolv.conf \
+--trust-keys-from-https quay.io/calico/node:v0.19.0
+
+KillMode=mixed
+Restart=always
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

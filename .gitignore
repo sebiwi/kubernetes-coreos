@@ -1,0 +1,6 @@
+ssh.config
+.vagrant
+.molecule
+.cache
+./kubernetes-resources
+*.swp

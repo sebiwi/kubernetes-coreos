@@ -1,0 +1,4 @@
+---
+python_install_dir: /home/core/bin/python
+pypy_dir: /home/core/pypy
+pypy_version: 5.1.0

@@ -1,0 +1,146 @@
+# filename: roles/configure/ca/tasks/main.yml
+---
+
+- name: Create ca directory
+  file:
+    path: "{{ kube_resource_dir }}/ca"
+    state: directory
+  #delegate_to: 127.0.0.1
+
+- name: Create CA root key
+  command: openssl genrsa
+            -out ca-key.pem 2048
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+    creates: ca-key.pem
+  #delegate_to: 127.0.0.1
+
+- name: Create CA root certificate
+  command: openssl req -x509
+            -new -nodes
+            -key ca-key.pem
+            -days 10000
+            -out ca.pem
+            -subj "/CN=kube-ca"
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+    creates: ca.pem
+  #delegate_to: 127.0.0.1
+
+- name: Add openssl configuration for Kuberentes API server
+  template:
+    src: openssl.cnf.j2
+    dest: "{{ kube_resource_dir }}/ca/openssl.cnf"
+  #delegate_to: 127.0.0.1
+
+- name: Create Kubernetes API server key
+  command: openssl genrsa
+            -out apiserver-key.pem 2048
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+    creates: apiserver-key.pem
+  #delegate_to: 127.0.0.1
+
+- name: Create Kubernetes API server csr
+  command: openssl req -new
+            -key apiserver-key.pem
+            -out apiserver.csr
+            -subj "/CN=kube-apiserver"
+            -config openssl.cnf
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+    creates: apiserver.csr
+  #delegate_to: 127.0.0.1
+
+- name: Create Kubernetes API server certificate
+  command: openssl x509 -req
+            -in apiserver.csr
+            -CA ca.pem
+            -CAkey ca-key.pem
+            -CAcreateserial
+            -out apiserver.pem
+            -days 365
+            -extensions v3_req
+            -extfile openssl.cnf
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+    creates: apiserver.pem
+  #delegate_to: 127.0.0.1
+
+- name: Add openssl configuration for Kuberentes workers
+  template:
+    src: worker-openssl.cnf.j2
+    dest: "{{ kube_resource_dir }}/ca/worker-openssl.cnf"
+  #delegate_to: 127.0.0.1
+
+- name: Create Kubernetes worker server key
+  command: openssl genrsa
+            -out "{{ hostvars[item]['ansible_hostname'] }}"-worker-key.pem 2048
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+    creates: "{{ hostvars[item]['ansible_hostname'] }}-worker-key.pem"
+  with_items: "{{ groups['kube-worker'] }}"
+  #delegate_to: 127.0.0.1
+
+- name: Create Kubernetes worker server csr
+  command: openssl req -new
+            -key "{{ hostvars[item]['ansible_hostname'] }}"-worker-key.pem
+            -out "{{ hostvars[item]['ansible_hostname'] }}"-worker.csr
+            -subj "/CN={{ hostvars[item]['ansible_hostname'] }}"
+            -config worker-openssl.cnf
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+    creates: "{{ hostvars[item]['ansible_hostname'] }}-worker.csr"
+  environment:
+    WORKER_IP: "{{ hostvars[item]['ansible_env']['COREOS_PUBLIC_IPV4'] }}"
+  with_items: "{{ groups['kube-worker'] }}"
+  #delegate_to: 127.0.0.1
+
+- name: Create Kubernetes worker certificate
+  command: openssl x509 -req
+            -in "{{ hostvars[item]['ansible_hostname'] }}"-worker.csr
+            -CA ca.pem
+            -CAkey ca-key.pem
+            -CAcreateserial
+            -out "{{ hostvars[item]['ansible_hostname'] }}"-worker.pem
+            -days 365
+            -extensions v3_req
+            -extfile worker-openssl.cnf
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+    creates: "{{ hostvars[item]['ansible_hostname'] }}-worker.pem"
+  environment:
+    WORKER_IP: "{{ hostvars[item]['ansible_env']['COREOS_PUBLIC_IPV4'] }}"
+  with_items: "{{ groups['kube-worker'] }}"
+  #delegate_to: 127.0.0.1
+
+- name: Create cluster administrator key
+  command: openssl genrsa
+            -out admin-key.pem 2048
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+    creates: admin-key.pem
+  #delegate_to: 127.0.0.1
+
+- name: Create cluster administrator csr
+  command: openssl req -new
+            -key admin-key.pem
+            -out admin.csr
+            -subj "/CN=kube-admin"
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+    creates: admin.csr
+  #delegate_to: 127.0.0.1
+
+- name: Create cluster administrator certificate
+  command: openssl x509 -req
+            -in admin.csr
+            -CA ca.pem
+            -CAkey ca-key.pem
+            -CAcreateserial
+            -out admin.pem
+            -days 365
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+    creates: admin.pem
+  #delegate_to: 127.0.0.1

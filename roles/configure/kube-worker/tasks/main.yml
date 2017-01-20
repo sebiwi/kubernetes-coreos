@@ -1,0 +1,114 @@
+# filename: roles/configure/kube-master/kube-worker/tasks/main.yml
+---
+
+- name: Create Kubernetes master ssl directory
+  file:
+    path: /etc/kubernetes/ssl
+    state: directory
+
+- name: Add Kubernetes worker SSL resources
+  copy:
+    src: "{{ kube_resource_dir }}/ca/{{ item }}"
+    dest: "/etc/kubernetes/ssl/{{ item }}"
+    mode: 0600
+    owner: root
+    group: root
+  with_items:
+    - ca.pem
+    - "{{ ansible_hostname }}-worker.pem"
+    - "{{ ansible_hostname }}-worker-key.pem"
+
+- name: Create symlinks to each worker-specific certificate
+  file:
+    src: /etc/kubernetes/ssl/{{ ansible_hostname }}-{{ item }}
+    dest: /etc/kubernetes/ssl/{{ item }}
+    state: link
+  with_items:
+    - worker.pem
+    - worker-key.pem
+
+- name: Create flannel configuration directory
+  file:
+    path: /etc/flannel
+    state: directory
+
+- name: Add flannel local configuration
+  template:
+    src: etc_flannel_options.env.j2
+    dest: /etc/flannel/options.env
+
+- name: Create flannel systemd configuration directory
+  file:
+    path: /etc/systemd/system/flanneld.service.d
+    state: directory
+
+- name: Add flannel systemd drop-in
+  template:
+    src: etc_systemd_system_flanneld.service.d_40-ExecStartPre-symlink.conf.j2
+    dest: /etc/systemd/system/flanneld.service.d/40-ExecStartPre-symlink.conf
+
+- name: Create Docker systemd configuration directory
+  file:
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+
+- name: Add Docker systemd drop-in
+  template:
+    src: etc_systemd_system_docker.service.d_40-flannel.conf.j2
+    dest: /etc/systemd/system/docker.service.d/40-flannel.conf
+
+- name: Add kubelet service configuration
+  template:
+    src: services/kubelet.service.j2
+    dest: /etc/systemd/system/kubelet.service
+
+- name: Create Kubernetes cni/net.d directory
+  file:
+    path: /etc/kubernetes/cni/net.d
+    state: directory
+
+- name: Add the CNI configuration
+  template:
+    src: etc_kubernetes_cni_net.d_10-calico.conf.j2
+    dest: /etc/kubernetes/cni/net.d/10-calico.conf
+
+- name: Create Kubernetes manifests directory
+  file:
+    path: /etc/kubernetes/manifests
+    state: directory
+
+- name: Add kube-proxy manifest
+  template:
+    src: manifests/kube-proxy.yaml.j2
+    dest: /etc/kubernetes/manifests/kube-proxy.yaml
+
+- name: Add worker kubeconfig
+  template:
+    src: etc_kubernetes_worker-kubeconfig.yaml.j2
+    dest: /etc/kubernetes/worker-kubeconfig.yaml
+
+- name: Add calico-node service configuration
+  template:
+    src: services/calico-node.service.j2
+    dest: /etc/systemd/system/calico-node.service
+
+- name: Start flannel
+  systemd:
+    name: flanneld
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Start Kubelet
+  systemd:
+    name: kubelet
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Start Calico
+  systemd:
+    name: calico-node
+    state: started
+    enabled: yes
+    daemon_reload: yes

@@ -1,0 +1,12 @@
+# filename: roles/configure/kube-master/tasks/main.yml
+---
+
+- name: Install Kubernetes master node
+  include: configure.yml
+
+- name: Test that the API server is running
+  include: test.yml
+  tags: [ test ]
+
+- name: Create additional Kubernetes namespaces
+  include: namespaces.yml

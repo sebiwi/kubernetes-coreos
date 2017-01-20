@@ -1,0 +1,20 @@
+# filename: roles/configure/etcd/tasks/test.yml
+---
+
+- name: Wait for port 2379 to listen
+  wait_for:
+    port: 2379
+    delay: 120
+
+- name: Get etcd nodes
+  command: etcdctl ls
+  register: etcd_nodes
+  changed_when: false
+
+- debug:
+    var: etcd_nodes
+
+- name: Test that the coreos.com node exists
+  assert:
+    that:
+      - "'/coreos.com' in etcd_nodes.stdout"

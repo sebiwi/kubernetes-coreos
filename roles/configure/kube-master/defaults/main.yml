@@ -1,0 +1,6 @@
+# filename: roles/configure/kube-master/defaults/main.yml
+---
+
+kubernetes_version: v1.4.3_coreos.0
+#kubernetes_version: v1.5.1_coreos.0
+network_plugin: cni

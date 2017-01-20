@@ -1,0 +1,47 @@
+# {{ ansible_managed }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - name: kube-apiserver
+    image: quay.io/coreos/hyperkube:{{ kubernetes_version }}
+    command:
+    - /hyperkube
+    - apiserver
+    - --bind-address=0.0.0.0
+    - --etcd-servers={{ etcd_endpoints }}
+    - --allow-privileged=true
+    - --service-cluster-ip-range={{ service_ip_range }}
+    - --secure-port=443
+    - --advertise-address={{ ansible_env.COREOS_PUBLIC_IPV4 }}
+    - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota
+    - --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem
+    - --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    - --client-ca-file=/etc/kubernetes/ssl/ca.pem
+    - --service-account-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    - --runtime-config=extensions/v1beta1=true,extensions/v1beta1/networkpolicies=true
+    ports:
+    - containerPort: 443
+      hostPort: 443
+      name: https
+    - containerPort: 8080
+      hostPort: 8080
+      name: local
+    volumeMounts:
+    - mountPath: /etc/kubernetes/ssl
+      name: ssl-certs-kubernetes
+      readOnly: true
+    - mountPath: /etc/ssl/certs
+      name: ssl-certs-host
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/ssl
+    name: ssl-certs-kubernetes
+  - hostPath:
+      path: /usr/share/ca-certificates
+    name: ssl-certs-host

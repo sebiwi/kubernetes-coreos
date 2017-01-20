@@ -1,0 +1,42 @@
+# filename: roles/bootstrap/ansible-bootstrap/tasks/configure.yml
+- block:
+    - name: Check if Python is installed
+      raw: "{{ ansible_python_interpreter }} --version"
+      register: python_install
+      changed_when: false
+
+    - name: Check if install tar file exists
+      raw: "stat /tmp/pypy-{{ pypy_version }}.tar.bz2"
+      register: pypy_tar_file
+      changed_when: false
+
+    - name: Check if pypy directory exists
+      raw: "stat {{ pypy_dir }}"
+      register: pypy_directory
+      changed_when: false
+
+    - name: Check if libtinfo is simlinked
+      raw: "stat {{ pypy_dir }}/lib/libtinfo.so.5"
+      register: libtinfo_symlink
+      changed_when: false
+  ignore_errors: yes
+
+- name: Download PyPy
+  raw: wget -O /tmp/pypy-{{ pypy_version }}.tar.bz2 https://bitbucket.org/pypy/pypy/downloads/pypy-{{ pypy_version }}-linux64.tar.bz2
+  when: pypy_tar_file | failed
+
+- name: Extract PyPy
+  raw: mkdir -p {{ pypy_dir }} && tar xf /tmp/pypy-{{ pypy_version }}.tar.bz2 -C {{ pypy_dir }}/ --strip-components=1
+  args:
+    warn: false
+  when: pypy_directory | failed
+
+- name: Symlink libncurses as libtinfo.so.5
+  raw: mkdir -p {{ pypy_dir }}/lib && ln -s /lib64/libncurses.so.5.9 {{ pypy_dir }}/lib/libtinfo.so.5
+  args:
+    warn: false
+  when: libtinfo_symlink | failed
+
+- name: Install PyPy
+  script: bootstrap.sh {{ pypy_dir }} {{ ansible_python_interpreter }}
+  when: python_install | failed

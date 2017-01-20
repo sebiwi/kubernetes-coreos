@@ -1,0 +1,55 @@
+---
+
+- name: Bootstrap coreos hosts
+  hosts: all
+  gather_facts: false
+  roles:
+    - role: bootstrap/ansible-bootstrap
+      tags: [ ansible-bootstrap ]
+
+- name: Create certificates for Kubernetes componentes
+  hosts: all
+  become: false
+  roles:
+    - role: configure/ca
+      tags: [ ca ]
+      delegate_to: 127.0.0.1
+
+- name: Configure etcd cluster
+  hosts: etcd
+  become: true
+  roles:
+    - role: configure/etcd
+      tags: [ etcd ]
+
+- name: Configure Kubernetes master node
+  hosts: kube-master
+  become: true
+  roles:
+    - role: configure/kube-master
+      tags: [ kube-master ]
+
+- name: Configure Kubernetes worker node
+  hosts: kube-worker
+  become: true
+  roles:
+    - role: configure/kube-worker
+      tags: [ kube-worker ]
+
+- name: Configure kubectl
+  hosts: all
+  become: false
+  roles:
+    - role: configure/kubectl
+      tags: [ kubectl ]
+      delegate_to: 127.0.0.1
+      run_once: yes
+
+- name: Add extra Kubernetes components
+  hosts: all
+  become: false
+  roles:
+    - role: configure/kube-components
+      tags: [ kube-components ]
+      delegate_to: 127.0.0.1
+      run_once: yes

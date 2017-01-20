@@ -1,0 +1,23 @@
+# filename: roles/configure/kube-master/tasks/namespaces.yml
+---
+
+- name: Verify calico-system namespace existance
+  uri:
+    url: http://127.0.0.1:8080/api/v1/namespaces/calico-system
+  register: calico_namespace
+  changed_when: false
+  failed_when: calico_namespace.status != 200 and calico_namespace.status != 404
+
+- name: Create Calico namespace
+  uri:
+    url: http://127.0.0.1:8080/api/v1/namespaces
+    method: POST
+    HEADER_Content-Type: application/json
+    status_code: 201
+    body:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: calico-system
+    body_format: json
+  when: calico_namespace.status != 200

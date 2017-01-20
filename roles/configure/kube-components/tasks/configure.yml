@@ -1,0 +1,38 @@
+# filename: roles/configure/kube-components/tasks/configure.yml
+---
+
+- name: Create add-on directory
+  file:
+    path: "{{ kube_resource_dir }}/add-ons"
+    state: directory
+
+- name: Add add-on files
+  template:
+    src: "{{ item }}.yml.j2"
+    dest: "{{ kube_resource_dir }}/add-ons/{{ item }}.yml"
+  with_items:
+    - dns-addon
+    - kube-dashboard-rc
+    - kube-dashboard-svc
+
+- name: Verify if kube-system resources already exist
+  command: kubectl get pods --namespace=kube-system
+  register: kube_resources
+  changed_when: false
+
+- name: Create the DNS Kubernetes add-on
+  command: kubectl create -f dns-addon.yml
+  args:
+    chdir: "{{ kube_resource_dir }}/add-ons"
+  when:
+    "'kube-dns' not in kube_resources.stdout"
+
+- name: Create the Kubernetes dashboard add-on
+  command: kubectl create -f {{ item }}.yml
+  args:
+    chdir: "{{ kube_resource_dir }}/add-ons"
+  with_items:
+    - kube-dashboard-rc
+    - kube-dashboard-svc
+  when:
+    "'kubernetes-dashboard' not in kube_resources.stdout"

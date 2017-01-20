@@ -1,0 +1,8 @@
+# filename: roles/configure/kube-master/tasks/test.yml
+---
+
+- name: Test apiserver
+  wait_for:
+    host: 127.0.0.1
+    port: 8080
+    timeout: 600

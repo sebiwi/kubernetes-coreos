@@ -1,0 +1,31 @@
+# filename: roles/configure/kubectl/tasks/main.yml
+---
+
+- name: Verify if kubectl is already configured
+  command: kubectl cluster-info
+  register: cluster_info
+  changed_when: false
+
+- name: Set default cluster
+  command: kubectl config set-cluster default-cluster --server=https://{{ master_host }} --certificate-authority=ca.pem
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+  when: "'Kubernetes master' not in cluster_info.stdout"
+
+- name: Set credentials
+  command: kubectl config set-credentials default-admin --certificate-authority=ca.pem --client-key=admin-key.pem --client-certificate=admin.pem
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+  when: "'Kubernetes master' not in cluster_info.stdout"
+
+- name: Set context
+  command: kubectl config set-context default-system --cluster=default-cluster --user=default-admin
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+  when: "'Kubernetes master' not in cluster_info.stdout"
+
+- name: Use context
+  command: kubectl config use-context default-system
+  args:
+    chdir: "{{ kube_resource_dir }}/ca"
+  when: "'Kubernetes master' not in cluster_info.stdout"

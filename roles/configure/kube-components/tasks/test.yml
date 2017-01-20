@@ -1,0 +1,13 @@
+# filename: roles/configure/kube-components/tasks/test.yml
+---
+
+- name: Verify that the resources have been created
+  command: kubectl get pods --namespace=kube-system
+  register: kube_resources
+  changed_when: false
+
+- name: Test that the resrouces have been created
+  assert:
+    that:
+      - "'kube-dns' in kube_resources.stdout"
+      - "'kubernetes-dashboard' in kube_resources.stdout"

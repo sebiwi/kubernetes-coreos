@@ -1,0 +1,15 @@
+# filename: group_vars/all.yml
+---
+
+# CoreOS python location
+ansible_python_interpreter: /home/core/bin/python
+
+# Kubernetes resources temp dir
+kube_resource_dir: "{{ playbook_dir }}/kubernetes-resources"
+
+kubernetes_version: v1.4.3_coreos.0
+master_host: "{{ hostvars['kube-master-01']['ansible_env']['COREOS_PUBLIC_IPV4'] }}"
+dns_service_ip: 10.3.0.10
+etcd_endpoints: "{% for item in groups['etcd'] %}http://{{ hostvars[item]['ansible_env']['COREOS_PUBLIC_IPV4'] }}:2379{% if not loop.last %},{% endif %}{% endfor %}"
+service_ip_range: 10.3.0.0/24
+pod_network: 10.2.0.0/16

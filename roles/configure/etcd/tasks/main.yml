@@ -1,0 +1,9 @@
+# filename: roles/configure/etcd/tasks/main.yml
+---
+
+- name: Install etcd
+  include: configure.yml
+
+- name: Test etcd
+  include: test.yml
+  tags: [ test ]

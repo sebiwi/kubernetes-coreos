@@ -1,0 +1,8 @@
+# filename: roles/configure/kube-components/tasks/main.yml
+---
+
+- name: Create the Kubernetes add-ons
+  include: configure.yml
+
+- name: Test that the add-ons have been properly created
+  include: test.yml

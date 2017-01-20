@@ -1,0 +1,4 @@
+# filename: roles/configure/ca/defaults/main.yml
+---
+
+kube_resources_dir: "{{ playbook_dir }}/kubernetes-resources"

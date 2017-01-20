@@ -1,0 +1,62 @@
+---
+ansible:
+  config_file: ./ansible.cfg
+  playbook: kubernetes.yml
+
+vagrant:
+  raw_config_args:
+    - "ssh.insert_key = false"
+
+  platforms:
+  - name: coreOS
+    box: coreos-stable
+    config.vm.box_url: https://storage.googleapis.com/stable.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json
+
+  providers:
+  - name: virtualbox
+    type: virtualbox
+    options:
+      memory: 2048
+      cpus: 1
+
+  instances:
+  - name: etcd-01
+    ansible_groups:
+      - etcd
+    interfaces:
+      - network_name: private_network
+        type: static
+        ip: 10.0.0.101
+        auto_config: true
+    options:
+      append_platform_to_hostname: no
+  - name: kube-master-01
+    ansible_groups:
+      - kube-master
+    interfaces:
+      - network_name: private_network
+        type: static
+        ip: 10.0.0.111
+        auto_config: true
+    options:
+      append_platform_to_hostname: no
+  - name: kube-worker-01
+    ansible_groups:
+      - kube-worker
+    interfaces:
+      - network_name: private_network
+        type: static
+        ip: 10.0.0.121
+        auto_config: true
+    options:
+      append_platform_to_hostname: no
+  - name: kube-worker-02
+    ansible_groups:
+      - kube-worker
+    interfaces:
+      - network_name: private_network
+        type: static
+        ip: 10.0.0.122
+        auto_config: true
+    options:
+      append_platform_to_hostname: no

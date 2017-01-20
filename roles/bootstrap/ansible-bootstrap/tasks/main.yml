@@ -1,0 +1,12 @@
+# filename: roles/bootstrap/ansible-bootstrap/tasks/main.yml
+---
+
+- name: Install and configure PyPy
+  include: configure.yml
+
+- name: Test PyPy installation
+  include: test.yml
+  tags: [ test ]
+
+- name: Gather ansible facts
+  setup:

@@ -1,0 +1,20 @@
+# filename: roles/configure/etcd/tasks/configure.yml
+---
+
+- name: Create etcd service directory
+  file:
+    path: "{{ etcd_service_dir }}"
+    state: directory
+
+- name: Create etcd configuration
+  template:
+    src: 40-listen-address.conf.j2
+    dest: "{{ etcd_service_dir }}/40-listen-address.conf"
+  notify: Restart etcd
+
+- name: Start etcd service
+  systemd:
+    name: etcd2
+    state: started
+    enabled: yes
+    daemon_reload: yes

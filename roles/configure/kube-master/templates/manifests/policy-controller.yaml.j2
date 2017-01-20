@@ -1,0 +1,27 @@
+# {{ ansible_managed }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: calico-policy-controller
+  namespace: calico-system
+spec:
+  hostNetwork: true
+  containers:
+    # The Calico policy controller.
+    - name: k8s-policy-controller
+      image: calico/kube-policy-controller:v0.2.0
+      env:
+        - name: ETCD_ENDPOINTS
+          value: "{{ etcd_endpoints }}"
+        - name: K8S_API
+          value: "http://127.0.0.1:8080"
+        - name: LEADER_ELECTION
+          value: "true"
+    # Leader election container used by the policy controller.
+    - name: leader-elector
+      image: quay.io/calico/leader-elector:v0.1.0
+      imagePullPolicy: IfNotPresent
+      args:
+        - "--election=calico-policy-election"
+        - "--election-namespace=calico-system"
+        - "--http=127.0.0.1:4040"
