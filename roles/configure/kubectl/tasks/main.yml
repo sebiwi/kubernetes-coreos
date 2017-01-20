@@ -4,6 +4,7 @@
 - name: Verify if kubectl is already configured
   command: kubectl cluster-info
   register: cluster_info
+  failed_when: false
   changed_when: false
 
 - name: Set default cluster
