@@ -100,7 +100,7 @@
 
 - name: Check if flannel pod network range configuration exists in etcd
   command: etcdctl --endpoints
-           http://{{ hostvars['etcd-01']['ansible_env']['COREOS_PUBLIC_IPV4'] }}:2379
+           http://{{ hostvars[groups['etcd'][0]]['ansible_env']['COREOS_PUBLIC_IPV4'] }}:2379
            get /coreos.com/network/config
   register: network_config
   changed_when: false
@@ -108,7 +108,7 @@
 
 - name: Add flannel pod network range configuration to etcd
   uri:
-    url: http://{{ hostvars['etcd-01']['ansible_env']['COREOS_PUBLIC_IPV4'] }}:2379/v2/keys/coreos.com/network/config
+    url: http://{{ hostvars[groups['etcd'][0]]['ansible_env']['COREOS_PUBLIC_IPV4'] }}:2379/v2/keys/coreos.com/network/config
     method: PUT
     HEADER_Content-Type: application/x-www-form-urlencoded
     status_code: 201
