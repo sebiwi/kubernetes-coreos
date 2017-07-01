@@ -18,4 +18,4 @@ test:
 clean:
 	@vagrant destroy -f
 	@rm -rf kubernetes-resources
-	@rm ssh.config
+	@[ ! -f ssh.config ] || rm ssh.config
