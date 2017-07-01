@@ -110,7 +110,8 @@
   uri:
     url: http://{{ hostvars[groups['etcd'][0]]['ansible_env']['COREOS_PUBLIC_IPV4'] }}:2379/v2/keys/coreos.com/network/config
     method: PUT
-    HEADER_Content-Type: application/x-www-form-urlencoded
+    headers:
+      Content-type: application/x-www-form-urlencoded
     status_code: 201
     body: "value={\"Network\":\"{{ pod_network }}\",
            \"Backend\":{\"Type\":\"vxlan\"}}"
