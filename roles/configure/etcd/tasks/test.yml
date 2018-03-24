@@ -10,11 +10,6 @@
   command: etcdctl ls
   register: etcd_nodes
   changed_when: false
-
-- debug:
-    var: etcd_nodes
-
-- name: Test that the coreos.com node exists
-  assert:
-    that:
-      - "'/coreos.com' in etcd_nodes.stdout"
+  until: "'/coreos.com' in etcd_nodes.stdout"
+  retries: 10
+  delay: 10
