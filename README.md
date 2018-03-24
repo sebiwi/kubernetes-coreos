@@ -18,8 +18,8 @@ You will need Ansible 2.2, Vagrant, Virtualbox and kubectl. You will also need m
 
 ## You can find the articles related to this repository below:
 
-- Kubernetes general architecure: https://sebiwi.github.io/how-does-it-work-kube-1/
-- Kubernetes networking: https://sebiwi.github.io/how-does-it-work-kube-2/
-- Infrastructure as code, tools of the trade: https://sebiwi.github.io/how-does-it-work-kube-3/
-- How to Ansible your CoreOS, and etc(d)!: https://sebiwi.github.io/how-does-it-work-kube-4/
-- Master and worker, at last!: https://sebiwi.github.io/how-does-it-work-kube-5/
+- Kubernetes general architecure: https://sebiwi.github.io/blog/how-does-it-work-kube-1/
+- Kubernetes networking: https://sebiwi.github.io/blog/how-does-it-work-kube-2/
+- Infrastructure as code, tools of the trade: https://sebiwi.github.io/blog/how-does-it-work-kube-3/
+- How to Ansible your CoreOS, and etc(d)!: https://sebiwi.github.io/blog/how-does-it-work-kube-4/
+- Master and worker, at last!: https://sebiwi.github.io/blog/how-does-it-work-kube-5/
