@@ -18,8 +18,8 @@ You will need Ansible 2.2, Vagrant, Virtualbox and kubectl. You will also need m
 
 ## You can find the articles related to this repository below:
 
-- Kubernetes general architecure: https://blog.octo.com/en/how-does-it-work-kubernetes-episode-1-kubernetes-general-architecture/
-- Kubernetes networking: https://blog.octo.com/en/how-does-it-work-kubernetes-episode-2-kubernetes-networking/
-- Infrastructure as code, tools of the trade: https://blog.octo.com/en/how-does-it-work-kubernetes-episode-3-infrastructure-as-code-the-tools-of-the-trade/
-- How to Ansible your CoreOS, and etc(d)!: https://blog.octo.com/en/how-does-it-work-kubernetes-episode-4-how-to-ansible-your-coreos-and-etcd/
-- Master and worker, at last!: https://blog.octo.com/en/how-does-it-work-kubernetes-episode-5-master-and-worker-at-last/
+- Kubernetes general architecure: https://sebiwi.github.io/blog/how-does-it-work-kube-1/
+- Kubernetes networking: https://sebiwi.github.io/blog/how-does-it-work-kube-2/
+- Infrastructure as code, tools of the trade: https://sebiwi.github.io/blog/how-does-it-work-kube-3/
+- How to Ansible your CoreOS, and etc(d)!: https://sebiwi.github.io/blog/how-does-it-work-kube-4/
+- Master and worker, at last!: https://sebiwi.github.io/blog/how-does-it-work-kube-5/
