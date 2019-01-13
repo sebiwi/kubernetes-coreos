@@ -25,7 +25,6 @@
   raw: wget -O /tmp/pypy-{{ pypy_version }}.tar.bz2 https://bitbucket.org/squeaky/portable-pypy/downloads/pypy-{{ pypy_version }}-linux_x86_64-portable.tar.bz2
   when: pypy_tar_file is failed
 
-
 - name: Extract PyPy
   raw: mkdir -p {{ pypy_dir }} && tar xf /tmp/pypy-{{ pypy_version }}.tar.bz2 -C {{ pypy_dir }}/ --strip-components=1
   args:
