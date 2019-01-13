@@ -1,8 +1,7 @@
 # filename: roles/configure/etcd/hanlders/main.yml
 ---
-
-- name: Restart etcd
+- name: restart etcd
   service:
-    name: etcd2
+    name: etcd
     state: restarted
     daemon_reload: yes

@@ -1,6 +1,5 @@
 # filename: roles/bootstrap/ansible-bootstrap/tasks/test.yml
 ---
-
 - name: Test if Python is installed
   command: ./bin/python --version
   changed_when: false
